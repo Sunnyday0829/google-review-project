@@ -1,6 +1,6 @@
 /.idea
-/20230717055154221d.csv
+*.csv
 /preprocessing.py
 /venv
-/20230718.jpg
-/my_icon.png
+*.jpg
+*.png
