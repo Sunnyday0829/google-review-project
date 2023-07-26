@@ -1,0 +1,8 @@
+pandas
+numpy
+matplotlib
+plotly.express
+requests
+json
+streamlit
+datetime
