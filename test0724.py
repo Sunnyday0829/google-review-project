@@ -90,8 +90,8 @@ def plot_pie_ratings(df, brand):
 
 
 
-def data_lower_3(df):
-    data_review_lower3 = df[(df['review_rating'] <= 3) & (df['brand'] == "Audi") & (df['city'].isin(selectbox_value_location))]
+def data_lower_3(df, brand):
+    data_review_lower3 = df[(df['review_rating'] <= 3) & (df['brand'] == brand) & (df['city'].isin(selectbox_value_location))]
     data_review_lower3 = data_review_lower3[['name', 'review_text', 'owner_answer', 'review_rating', 'review_datetime_utc']].sort_values('review_datetime_utc', ascending = False)
     return data_review_lower3
 
@@ -161,7 +161,15 @@ with tab1:
 with tab2:
 
     st.markdown('### Highlighted Reviews (lower than 3)')
-    st.dataframe(data_lower_3(data), use_container_width=True)
+
+    st.subheader('Audi')
+    st.dataframe(data_lower_3(data, brands[0]), use_container_width=True)
+
+    st.subheader('BMW')
+    st.dataframe(data_lower_3(data, brands[1]), use_container_width=True)
+
+    st.subheader('M-Benz')
+    st.dataframe(data_lower_3(data, brands[2]), use_container_width=True)
 
 with tab3:
     st.markdown('### Semantic Analysis')
