@@ -1,6 +1,6 @@
 /.idea
-*.csv
 /preprocessing.py
 /venv
-*.jpg
-*.png
+/preprocessing_ver1.ipynb
+/preprocessing_ver2.ipynb
+/test0718.py
