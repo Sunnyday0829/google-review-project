@@ -1,8 +1,6 @@
 import pandas as pd
 import numpy as np
 import plotly.express as px
-import requests
-import json
 import streamlit as st
 from datetime import datetime
 from datetime import timedelta
