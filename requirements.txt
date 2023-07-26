@@ -4,3 +4,5 @@ matplotlib==3.7.2
 plotly==5.15.0
 streamlit==1.25.0
 datetime==5.2
+openpyxl==3.1.2
+requests==2.31.0
