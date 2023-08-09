@@ -6,3 +6,5 @@ streamlit==1.25.0
 datetime==5.2
 openpyxl==3.1.2
 requests==2.31.0
+transformers==4.31.0
+torch==2.0.1

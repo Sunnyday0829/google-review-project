@@ -6,6 +6,11 @@ from datetime import datetime
 from datetime import timedelta
 import requests
 import json
+import re
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+
+nltk.download('punkt')
 
 st.set_page_config(
     page_title="Audi Customer Reviews Dashboard",
@@ -53,7 +58,7 @@ def plot_bar_ratings(df, brand):
     df_brand = df_brand.groupby("name")['rating'].mean().reset_index().sort_values('rating')
     
     fig = px.bar(df_brand, x="rating", y="name", orientation='h', color='rating', color_continuous_scale=['#bcbcbc', '#de0909'], text_auto=True)
-    fig.update_traces(textfont_size=12, textangle=0, textposition='outside', cliponaxis=False)
+    fig.update_traces(textfont_size=12, textangle=0, textposition='inside', cliponaxis=False, textfont_color = 'white')
     fig.update_layout(plot_bgcolor='white', xaxis_title='Ratings', yaxis_title="", font=dict(size=12, color='black'), coloraxis_showscale=False)
     fig.update_xaxes(showgrid=False)
     return fig
@@ -76,24 +81,51 @@ def plot_hist_within3months_ratings_percentage(df):
     fig.update_xaxes(showgrid=False)
     return fig
 
-def plot_pie_ratings(df, brand):
-    data_within_months_ratings = df[(df['within_three_months']) & (df['brand'] == brand) & (df['city'].isin(selectbox_value_location))].sort_values('review_rating', ascending=False)
-    data_within_months_ratings = data_within_months_ratings.groupby(['brand','review_rating'])['review_rating'].count().reset_index(name = 'count').sort_values(['brand', 'review_rating'], ascending=[False, False])
-    fig = px.pie(data_within_months_ratings, values='count', names='review_rating', hole=.3,
-                 color_discrete_map={1.0: '#e81000',
-                                     2.0: '#f76055',
-                                     3.0: '#ff9189',
-                                     4.0: '#ffcaca',
-                                     5.0: '#ffdbdb'})
-    fig.update_traces(textposition='inside', textinfo='percent+label')
+def plot_brand_categories():
+    data_cat = {
+        "Brand": ['Audi', 'Audi', 'Audi', 'Audi', 'Audi', 'BMW', 'BMW', 'BMW', 'BMW', 'BMW', "Benz", "Benz", "Benz", "Benz", "Benz",],
+        "Category": ['Sales', 'After Sales', 'Customer Service', 'Others', 'Blank',
+                     'Sales', 'After Sales', 'Customer Service', 'Others', 'Blank',
+                     'Sales', 'After Sales', 'Customer Service', 'Others', 'Blank'],
+        "Count": [0, 2, 1, 1, 2, 7, 5, 11, 3, 3, 8, 6, 15, 2, 10]
+    }
+    df_cat = pd.DataFrame(data_cat)
+
+    fig = make_subplots(rows=1, cols=3, specs=[[{'type':'domain'}, {'type':'domain'}, {'type':'domain'}]],
+                        subplot_titles=('Audi', 'BMW', 'Benz'))
+
+    df_audi = df_cat[df_cat['Brand'] == 'Audi']
+    fig.add_trace(go.Pie(labels=df_audi['Category'], values=df_audi['Count'], scalegroup='Audi', name="Audi"),
+                  1, 1)
+
+    df_bmw = df_cat[df_cat['Brand'] == 'BMW']
+    fig.add_trace(go.Pie(labels=df_bmw['Category'], values=df_bmw['Count'], scalegroup='BMW', name="BMW"),
+                  1, 2)
+
+    df_benz = df_cat[df_cat['Brand'] == 'Benz']
+    fig.add_trace(go.Pie(labels=df_benz['Category'], values=df_benz['Count'], scalegroup='Benz', name="Benz"),
+                  1, 3)
+
+    fig.update_layout(title_text="Brands' Categories Distribution")
+    fig.update_traces(hoverinfo="label+value+percent", textinfo="label+percent")
+
     return fig
 
 
+def plot_pie_ratings(df, brand):
+    data_within_months_ratings = df[(df['within_three_months']) & (df['brand'] == brand) & (df['city'].isin(selectbox_value_location))].sort_values('review_rating', ascending=False)
+    data_within_months_ratings = data_within_months_ratings.groupby(['brand','review_rating'])['review_rating'].count().reset_index(name = 'count').sort_values(['brand', 'review_rating'], ascending=[False, False])
+    fig = px.pie(data_within_months_ratings, values='count', names='review_rating', hole=.5)
+    fig.update_traces(textposition='inside', textinfo='percent+label', textfont_size=12, textfont_color = 'white')
+    fig.update_layout(showlegend=False)
+    return fig
 
 def data_lower_3(df, brand):
     data_review_lower3 = df[(df['review_rating'] <= 3) & (df['brand'] == brand) & (df['city'].isin(selectbox_value_location))]
     data_review_lower3 = data_review_lower3[['name', 'review_text', 'owner_answer', 'review_rating', 'review_datetime_utc']].sort_values('review_datetime_utc', ascending = False)
     return data_review_lower3
+
+
 
 current_date = datetime.now().date()
 three_months_ago = current_date - timedelta(days=90)
@@ -104,7 +136,6 @@ brands = ['Audi', 'BMW', 'M-Benz']
 
 st.sidebar.header("Audi Customer Reviews Dashboard `version 1`")
 st.sidebar.subheader('Select Location')
-
 
 with st.sidebar:
 
@@ -172,4 +203,18 @@ with tab2:
     st.dataframe(data_lower_3(data, brands[2]), use_container_width=True)
 
 with tab3:
+
     st.markdown('### Semantic Analysis')
+
+    st.subheader("Low Score Reviews Overview")
+
+    st.text("Sales Catgeory : Car Salesman Related Reviews")
+    st.text("After Sales Catgeory : Maintainence Related Reviews")
+    st.text("Customer Service Catgeory : Dealership Environment / Foods and Drinks Related Reviews")
+    st.text("Others Catgeory : No Specific Category")
+    st.text("Blank Category : No Comments")
+
+    st.plotly_chart(plot_brand_categories())
+    
+
+
