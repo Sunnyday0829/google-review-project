@@ -10,8 +10,6 @@ import re
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-nltk.download('punkt')
-
 st.set_page_config(
     page_title="Audi Customer Reviews Dashboard",
     page_icon="./my_icon.png",
